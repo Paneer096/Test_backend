@@ -110,40 +110,40 @@ Here is the structured meeting data:
 if __name__ == "__main__":
     import os
     
-    # Create outputs folder if needed
-    os.makedirs("outputs", exist_ok=True)
+    # Create outputs folder if needed (outside backend)
+    os.makedirs("../outputs", exist_ok=True)
     
     # Check if transcript exists from transcriber
-    if os.path.exists("outputs/transcript.json"):
+    if os.path.exists("../outputs/transcript.json"):
         print("Loading existing transcript...")
-        with open("outputs/transcript.json", "r") as f:
+        with open("../outputs/transcript.json", "r") as f:
             segments = json.load(f)
     else:
         # If no transcript, run transcriber
         from transcriber import transcribe_audio
         
-        audio_file = "uploads/demo.wav"
+        audio_file = "../uploads/meeting.mp3"
         if not os.path.exists(audio_file):
             print(f"❌ Error: {audio_file} not found!")
-            print("Put your audio file in backend/uploads/demo.wav")
+            print("Put your audio file in the uploads/ folder")
             exit(1)
         
         print("Transcribing audio...")
         segments = transcribe_audio(audio_file)
         
         # Save transcript
-        with open("outputs/transcript.json", "w") as f:
+        with open("../outputs/transcript.json", "w") as f:
             json.dump(segments, f, indent=2)
-        print("Saved: outputs/transcript.json")
+        print("Saved: ../outputs/transcript.json")
     
     # Extract structured data
     print("Extracting meeting data...")
     data = extract_meeting_data(segments)
     
     # Save structured data
-    with open("outputs/structured_data.json", "w") as f:
+    with open("../outputs/structured_data.json", "w") as f:
         json.dump(data, f, indent=2)
-    print("Saved: outputs/structured_data.json")
+    print("Saved: ../outputs/structured_data.json")
     
     # Show result
     print("\n--- EXTRACTED DATA ---")

@@ -11,8 +11,9 @@ CORS(app)
 
 meetings = {}
 
-os.makedirs("uploads", exist_ok=True)
-os.makedirs("outputs", exist_ok=True)
+# Create folders outside backend
+os.makedirs("../uploads", exist_ok=True)
+os.makedirs("../outputs", exist_ok=True)
 
 
 @app.route("/")
@@ -37,7 +38,7 @@ def upload():
     
     meeting_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     audio_filename = f"{meeting_id}.wav"
-    audio_path = os.path.join("uploads", audio_filename)
+    audio_path = os.path.join("..", "uploads", audio_filename)
     file.save(audio_path)
     
     print(f"📁 Saved audio: {audio_path}")
@@ -58,7 +59,7 @@ def upload():
             "audio_filename": audio_filename
         }
         
-        with open(f"outputs/{meeting_id}.json", "w") as f:
+        with open(f"../outputs/{meeting_id}.json", "w") as f:
             json.dump(meetings[meeting_id], f, indent=2, ensure_ascii=False)
         
         return jsonify({
@@ -114,13 +115,13 @@ def get_meeting(meeting_id):
 
 @app.route("/api/audio/<filename>")
 def serve_audio(filename):
-    return send_from_directory("uploads", filename)
+    return send_from_directory("../uploads", filename)
 
 
 @app.route("/api/demo", methods=["GET"])
 def demo():
-    if os.path.exists("outputs/demo_data.json"):
-        with open("outputs/demo_data.json", "r") as f:
+    if os.path.exists("../outputs/demo_data.json"):
+        with open("../outputs/demo_data.json", "r") as f:
             demo_data = json.load(f)
         meeting_id = demo_data["meeting_id"]
         meetings[meeting_id] = demo_data
