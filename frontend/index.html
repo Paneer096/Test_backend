@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAANI AI | Voice Analytics & Automated Intelligence Network</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">
+          <i class="fa-solid fa-wave-square"></i>
+        </div>
+        <div class="brand-text">
+          <h1>VAANI <span class="badge-tag">AI</span></h1>
+          <p>Voice Analytics & Automated Intelligence Network</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-indicator online">
+          <span class="status-dot"></span>
+          <span class="status-text">Backend Connected</span>
+        </div>
+        <button id="demoBtn" class="btn btn-secondary">
+          <i class="fa-solid fa-bolt"></i> Load Sample Meeting
+        </button>
+      </div>
+    </header>
+
+    <!-- HERO / UPLOAD SECTION -->
+    <section class="upload-section">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="audioInput" accept="audio/*" hidden />
+        <div class="drop-zone-content">
+          <div class="mic-glow">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </div>
+          <h3>Upload Meeting Audio</h3>
+          <p>Drag and drop your audio file here, or click to browse</p>
+          <div class="supported-formats">
+            <span><i class="fa-regular fa-file-audio"></i> MP3</span>
+            <span><i class="fa-regular fa-file-audio"></i> WAV</span>
+            <span><i class="fa-regular fa-file-audio"></i> M4A</span>
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="document.getElementById('audioInput').click()">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Select Audio File
+          </button>
+        </div>
+      </div>
+
+      <!-- PROCESSING OVERLAY -->
+      <div id="processingCard" class="processing-card hidden">
+        <div class="spinner-glow"></div>
+        <h4 id="processingStatus">Transcribing Audio with Whisper...</h4>
+        <p id="processingDetail">Converting speech to text segments and analyzing content with Groq LLM</p>
+        <div class="progress-bar-container">
+          <div id="progressBar" class="progress-bar-fill"></div>
+        </div>
+        <div class="pipeline-steps">
+          <div class="step active" id="step1"><i class="fa-solid fa-upload"></i> Uploading</div>
+          <div class="step" id="step2"><i class="fa-solid fa-file-audio"></i> Whisper STT</div>
+          <div class="step" id="step3"><i class="fa-solid fa-brain"></i> LLM Analysis</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN DASHBOARD (Visible when a meeting is loaded) -->
+    <main id="dashboard" class="dashboard-grid hidden">
+      
+      <!-- LEFT COLUMN: AUDIO PLAYER & INSIGHTS -->
+      <section class="main-content">
+        
+        <!-- AUDIO PLAYER BAR -->
+        <div class="audio-player-card glass-panel">
+          <div class="audio-info">
+            <div class="audio-icon"><i class="fa-solid fa-compact-disc fa-spin"></i></div>
+            <div class="audio-meta">
+              <h4 id="meetingTitle">Meeting_2026-08-04.wav</h4>
+              <span id="meetingDuration">Duration: 00:00</span>
+            </div>
+          </div>
+
+          <audio id="audioPlayer" controls></audio>
+
+          <div class="audio-controls-custom">
+            <div class="speed-controls">
+              <span>Speed:</span>
+              <button class="speed-btn active" data-speed="1">1x</button>
+              <button class="speed-btn" data-speed="1.25">1.25x</button>
+              <button class="speed-btn" data-speed="1.5">1.5x</button>
+              <button class="speed-btn" data-speed="2">2x</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXECUTIVE SUMMARY CARD -->
+        <div class="summary-card glass-panel">
+          <div class="card-header">
+            <i class="fa-solid fa-wand-magic-sparkles highlight-icon"></i>
+            <h3>Executive Summary</h3>
+          </div>
+          <p id="summaryText">Upload an audio file to view AI meeting summary.</p>
+        </div>
+
+        <!-- INSIGHTS TABS -->
+        <div class="insights-container glass-panel">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab="tab-decisions">
+              <i class="fa-solid fa-gavel"></i> Decisions (<span id="decisionsCount">0</span>)
+            </button>
+            <button class="tab-btn" data-tab="tab-actions">
+              <i class="fa-solid fa-list-check"></i> Action Items (<span id="actionsCount">0</span>)
+            </button>
+            <button class="tab-btn" data-tab="tab-keypoints">
+              <i class="fa-solid fa-lightbulb"></i> Key Points (<span id="keypointsCount">0</span>)
+            </button>
+            <button class="tab-btn" data-tab="tab-graph">
+              <i class="fa-solid fa-diagram-project"></i> Knowledge Graph
+            </button>
+            <button class="tab-btn" data-tab="tab-transcript">
+              <i class="fa-solid fa-align-left"></i> Transcript
+            </button>
+          </div>
+
+          <div class="tab-content-wrapper">
+            
+            <!-- DECISIONS TAB -->
+            <div id="tab-decisions" class="tab-pane active">
+              <div id="decisionsList" class="cards-list"></div>
+            </div>
+
+            <!-- ACTION ITEMS TAB -->
+            <div id="tab-actions" class="tab-pane">
+              <div id="actionsList" class="cards-list"></div>
+            </div>
+
+            <!-- KEY POINTS TAB -->
+            <div id="tab-keypoints" class="tab-pane">
+              <div id="keypointsList" class="cards-list"></div>
+            </div>
+
+            <!-- KNOWLEDGE GRAPH TAB -->
+            <div id="tab-graph" class="tab-pane">
+              <div class="graph-legend">
+                <span class="legend-item topic"><i class="fa-solid fa-circle"></i> Topic</span>
+                <span class="legend-item person"><i class="fa-solid fa-circle"></i> Person</span>
+                <span class="legend-item decision"><i class="fa-solid fa-circle"></i> Decision</span>
+              </div>
+              <div id="graphContainer" class="graph-canvas-container">
+                <svg id="knowledgeGraphSvg"></svg>
+              </div>
+            </div>
+
+            <!-- TRANSCRIPT TAB -->
+            <div id="tab-transcript" class="tab-pane">
+              <div class="transcript-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="transcriptSearch" placeholder="Search transcript..." />
+              </div>
+              <div id="transcriptList" class="transcript-stream"></div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Q&A CHAT -->
+      <aside class="sidebar-chat glass-panel">
+        <div class="chat-header">
+          <div class="chat-title">
+            <i class="fa-solid fa-robot highlight-icon"></i>
+            <div>
+              <h3>Ask VAANI AI</h3>
+              <span>Ask questions about this meeting</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-quick-prompts">
+          <button class="prompt-chip" data-prompt="What were the main decisions made?">
+            What were the decisions?
+          </button>
+          <button class="prompt-chip" data-prompt="Who has action items assigned?">
+            Who has tasks?
+          </button>
+          <button class="prompt-chip" data-prompt="Summarize the core takeaways.">
+            Summarize takeaways
+          </button>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+          <div class="chat-bubble bot-message">
+            <div class="avatar"><i class="fa-solid fa-bot"></i></div>
+            <div class="bubble-content">
+              Hello! I'm ready to answer any questions about your meeting transcript with exact quotes and timestamps.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-box">
+          <input type="text" id="chatInput" placeholder="Type your question..." />
+          <button id="sendChatBtn" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>VAANI AI Meeting Intelligence Platform &bull; Powered by Whisper Speech-to-Text & Groq Llama-3.1</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,9 +1,7 @@
 .env
 __pycache__/
-uploads/
-outputs/
 *.wav
 *.mp3
 *.mp4
 tempCodeRunnerFile.py
-Frontend/
+outputs/
