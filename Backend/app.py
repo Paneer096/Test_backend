@@ -2,28 +2,38 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import json
 import os
+import sys
 from datetime import datetime
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 from transcriber import transcribe_audio
 from llmprocessor import extract_meeting_data, query_meeting
 
 app = Flask(__name__)
 CORS(app)
 
-meetings = {}
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(SCRIPT_DIR)
 
-# Create folders outside backend
-os.makedirs("../uploads", exist_ok=True)
-os.makedirs("../outputs", exist_ok=True)
+UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+os.makedirs(OUTPUTS_DIR, exist_ok=True)
+
+meetings = {}
 
 
 @app.route("/")
 def index():
-    return send_from_directory("../frontend", "index.html")
+    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.route("/<path:path>")
 def serve_static(path):
-    return send_from_directory("../frontend", path)
+    return send_from_directory(FRONTEND_DIR, path)
 
 
 @app.route("/api/upload", methods=["POST"])
@@ -38,7 +48,7 @@ def upload():
     
     meeting_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     audio_filename = f"{meeting_id}.wav"
-    audio_path = os.path.join("..", "uploads", audio_filename)
+    audio_path = os.path.join(UPLOADS_DIR, audio_filename)
     file.save(audio_path)
     
     print(f"📁 Saved audio: {audio_path}")
@@ -59,7 +69,7 @@ def upload():
             "audio_filename": audio_filename
         }
         
-        with open(f"../outputs/{meeting_id}.json", "w") as f:
+        with open(os.path.join(OUTPUTS_DIR, f"{meeting_id}.json"), "w", encoding="utf-8") as f:
             json.dump(meetings[meeting_id], f, indent=2, ensure_ascii=False)
         
         return jsonify({
@@ -115,13 +125,14 @@ def get_meeting(meeting_id):
 
 @app.route("/api/audio/<filename>")
 def serve_audio(filename):
-    return send_from_directory("../uploads", filename)
+    return send_from_directory(UPLOADS_DIR, filename)
 
 
 @app.route("/api/demo", methods=["GET"])
 def demo():
-    if os.path.exists("../outputs/demo_data.json"):
-        with open("../outputs/demo_data.json", "r") as f:
+    demo_file = os.path.join(OUTPUTS_DIR, "demo_data.json")
+    if os.path.exists(demo_file):
+        with open(demo_file, "r", encoding="utf-8") as f:
             demo_data = json.load(f)
         meeting_id = demo_data["meeting_id"]
         meetings[meeting_id] = demo_data
