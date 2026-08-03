@@ -6,3 +6,5 @@ torch
 torchaudio
 python-dotenv
 
+all necessary environment variables path for ffmpeg and related.
+
