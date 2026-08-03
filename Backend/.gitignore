@@ -1,7 +1,5 @@
 .env
 __pycache__/
-uploads/
-outputs/
 *.wav
 *.mp3
 tempCodeRunnerFile.pytempCodeRunner.py
