@@ -7,4 +7,6 @@ torchaudio
 python-dotenv
 
 all necessary environment variables path for ffmpeg and related.
+if the api key is commited you can commit anything beacause the api key will still show in logs.
+you need to delete the logs also
 
