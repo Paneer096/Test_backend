@@ -1,7 +1,11 @@
 from groq import Groq
 import json
 import os
+import sys
 from dotenv import load_dotenv
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -108,42 +112,57 @@ Here is the structured meeting data:
 
 # Test
 if __name__ == "__main__":
-    import os
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(SCRIPT_DIR)
     
-    # Create outputs folder if needed (outside backend)
-    os.makedirs("../outputs", exist_ok=True)
+    outputs_dir = os.path.join(BASE_DIR, "outputs")
+    uploads_dir = os.path.join(BASE_DIR, "uploads")
+    os.makedirs(outputs_dir, exist_ok=True)
+    
+    transcript_path = os.path.join(outputs_dir, "transcript.json")
     
     # Check if transcript exists from transcriber
-    if os.path.exists("../outputs/transcript.json"):
+    if os.path.exists(transcript_path):
         print("Loading existing transcript...")
-        with open("../outputs/transcript.json", "r") as f:
+        with open(transcript_path, "r", encoding="utf-8") as f:
             segments = json.load(f)
     else:
         # If no transcript, run transcriber
         from transcriber import transcribe_audio
         
-        audio_file = "../uploads/meeting.mp3"
-        if not os.path.exists(audio_file):
-            print(f"❌ Error: {audio_file} not found!")
-            print("Put your audio file in the uploads/ folder")
+        possible_paths = [
+            os.path.join(uploads_dir, "meeting.mp3"),
+            os.path.join(SCRIPT_DIR, "meeting.mp3"),
+            "meeting.mp3"
+        ]
+        audio_file = None
+        for p in possible_paths:
+            if os.path.exists(p):
+                audio_file = p
+                break
+                
+        if not audio_file:
+            print("❌ Error: meeting.mp3 not found!")
+            print(f"Put your audio file in {uploads_dir} or {SCRIPT_DIR}")
             exit(1)
         
         print("Transcribing audio...")
         segments = transcribe_audio(audio_file)
         
         # Save transcript
-        with open("../outputs/transcript.json", "w") as f:
-            json.dump(segments, f, indent=2)
-        print("Saved: ../outputs/transcript.json")
+        with open(transcript_path, "w", encoding="utf-8") as f:
+            json.dump(segments, f, indent=2, ensure_ascii=False)
+        print(f"Saved: {transcript_path}")
     
     # Extract structured data
     print("Extracting meeting data...")
     data = extract_meeting_data(segments)
     
     # Save structured data
-    with open("../outputs/structured_data.json", "w") as f:
-        json.dump(data, f, indent=2)
-    print("Saved: ../outputs/structured_data.json")
+    structured_data_path = os.path.join(outputs_dir, "structured_data.json")
+    with open(structured_data_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    print(f"Saved: {structured_data_path}")
     
     # Show result
     print("\n--- EXTRACTED DATA ---")
