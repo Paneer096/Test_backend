@@ -5,3 +5,4 @@ groq
 torch
 torchaudio
 python-dotenv
+gunicorn
