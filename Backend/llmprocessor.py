@@ -1,3 +1,4 @@
+#yo whatsup
 from groq import Groq
 import json
 import os
@@ -122,7 +123,7 @@ if __name__ == "__main__":
         # If no transcript, run transcriber
         from transcriber import transcribe_audio
         
-        audio_file = "../uploads/meeting.mp3"
+        audio_file = "../uploads/test_audio.mp3"
         if not os.path.exists(audio_file):
             print(f"❌ Error: {audio_file} not found!")
             print("Put your audio file in the uploads/ folder")

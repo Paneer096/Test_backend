@@ -35,7 +35,7 @@ if __name__ == "__main__":
     os.makedirs("../outputs", exist_ok=True)
     
     # Path to your audio file
-    audio_file = "../uploads/meeting.mp3"
+    audio_file = "../uploads/test_audio.mp3"
     
     # Check if file exists
     if not os.path.exists(audio_file):

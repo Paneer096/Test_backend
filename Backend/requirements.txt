@@ -1,0 +1,7 @@
+flask
+flask-cors
+openai-whisper
+groq
+torch
+torchaudio
+python-dotenv
